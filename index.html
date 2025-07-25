@@ -41,26 +41,16 @@
   </div>
 
   <script>
-    
-const firebaseConfig = {
-
-  apiKey: "AIzaSyBv15j9DyPJW1dEuW0BCHOSucRqqQ988i0",
-
-  authDomain: "cypruspetsfinder.firebaseapp.com",
-
-  databaseURL: "https://cypruspetsfinder-default-rtdb.europe-west1.firebasedatabase.app",
-
-  projectId: "cypruspetsfinder",
-
-  storageBucket: "cypruspetsfinder.firebasestorage.app",
-
-  messagingSenderId: "758035903846",
-
-  appId: "1:758035903846:web:50fbc079fe8ca10ad1c4a7",
-
-  measurementId: "G-4LWWD4W3F1"
-
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyBv15j9DyPJW1dEuW0BCHOSucRqqQ988i0",
+      authDomain: "cypruspetsfinder.firebaseapp.com",
+      databaseURL: "https://cypruspetsfinder-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "cypruspetsfinder",
+      storageBucket: "cypruspetsfinder.appspot.com",
+      messagingSenderId: "758035903846",
+      appId: "1:758035903846:web:50fbc079fe8ca10ad1c4a7",
+      measurementId: "G-4LWWD4W3F1"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -76,8 +66,8 @@ const firebaseConfig = {
       const location = document.getElementById('location').value;
       const file = document.getElementById('photo').files[0];
       const id = Date.now();
-
       const safeFileName = encodeURIComponent(`${id}_${file.name}`);
+
       const ref = storage.ref().child(`pets/${safeFileName}`);
       await ref.put(file);
       const photoURL = await ref.getDownloadURL();
@@ -91,24 +81,23 @@ const firebaseConfig = {
       const pets = snapshot.val();
       for (const id in pets) {
         const pet = pets[id];
+        const typeClass = pet.type.toLowerCase() === 'missing' ? 'text-red-600 font-bold' : 'text-green-600 font-bold';
+        const typeLabel = pet.type.charAt(0).toUpperCase() + pet.type.slice(1);
         const card = document.createElement('div');
         card.className = 'bg-white shadow rounded p-4';
         card.innerHTML = `
           <img src="${pet.photoURL}" alt="Pet" class="w-full h-48 object-cover rounded mb-2">
-          <p><strong>Type:</strong> ${pet.type}</p>
+          <p><strong class="${typeClass}">${typeLabel}</strong></p>
           <p><strong>Description:</strong> ${pet.description}</p>
           <p><strong>Location:</strong> ${pet.location}</p>
           <button class="mt-2 bg-green-500 text-white px-3 py-1 rounded mark-found" data-id="${id}">Mark as Found ✅</button>
         `;
         petsList.appendChild(card);
-      }
 
-      document.querySelectorAll('.mark-found').forEach(button => {
-        button.addEventListener('click', async () => {
-          const id = button.getAttribute('data-id');
+        card.querySelector('.mark-found').addEventListener('click', async () => {
           await db.ref('pets/' + id + '/type').set('found');
         });
-      });
+      }
     });
   </script>
 </body>
