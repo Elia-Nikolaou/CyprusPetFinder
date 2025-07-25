@@ -77,7 +77,8 @@ const firebaseConfig = {
       const file = document.getElementById('photo').files[0];
       const id = Date.now();
 
-      const ref = storage.ref().child(`pets/${id}_${file.name}`);
+      const safeFileName = encodeURIComponent(`${id}_${file.name}`);
+      const ref = storage.ref().child(`pets/${safeFileName}`);
       await ref.put(file);
       const photoURL = await ref.getDownloadURL();
 
