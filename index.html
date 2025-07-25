@@ -81,10 +81,10 @@
       const pets = snapshot.val();
       for (const id in pets) {
         const pet = pets[id];
-        const typeClass = pet.type.toLowerCase() === 'missing' ? 'text-red-600 font-bold' : 'text-green-600 font-bold';
-        const typeLabel = pet.type.charAt(0).toUpperCase() + pet.type.slice(1);
         const isFound = pet.type.toLowerCase() === 'found';
         const isMissingDesc = !pet.description || pet.description.trim() === '';
+
+        const typeLabel = isFound ? '<span class="text-green-600 font-bold">Found</span>' : '<span class="text-red-600 font-bold">Missing</span>';
 
         const buttonClass = isFound
           ? 'bg-green-500 cursor-default'
@@ -94,13 +94,16 @@
 
         const buttonLabel = isFound ? '✅ Already Found' : 'Mark as Found ✅';
 
+        const contactInfo = pet.contact ? `<p><strong>Contact:</strong> ${pet.contact}</p>` : '';
+
         const card = document.createElement('div');
         card.className = 'bg-white shadow rounded p-4';
         card.innerHTML = `
           <img src="${pet.photoURL}" alt="Pet" class="w-full h-48 object-cover rounded mb-2">
-          <p><strong class="${typeClass}">${typeLabel}</strong></p>
+          <p>${typeLabel}</p>
           <p><strong>Description:</strong> ${pet.description}</p>
           <p><strong>Location:</strong> ${pet.location}</p>
+          ${contactInfo}
           <button class="mt-2 text-white px-3 py-1 rounded mark-found ${buttonClass}" data-id="${id}">${buttonLabel}</button>
         `;
         petsList.appendChild(card);
@@ -110,7 +113,10 @@
           markButton.disabled = true;
         } else {
           markButton.addEventListener('click', async () => {
-            await db.ref('pets/' + id + '/type').set('found');
+            const contact = prompt("Enter your contact information so people can reach you:");
+            if (contact) {
+              await db.ref('pets/' + id).update({ type: 'found', contact });
+            }
           });
         }
       }
