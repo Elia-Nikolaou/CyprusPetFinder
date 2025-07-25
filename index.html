@@ -116,6 +116,14 @@
             const contact = prompt("Enter your contact information so people can reach you:");
             if (contact) {
               await db.ref('pets/' + id).update({ type: 'found', contact });
+              markButton.disabled = true;
+              markButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+              markButton.classList.add('bg-green-500', 'cursor-default');
+              markButton.innerText = '✅ Already Found';
+              card.querySelector('p').innerHTML = '<span class="text-green-600 font-bold">Found</span>';
+              const contactElem = document.createElement('p');
+              contactElem.innerHTML = `<strong>Contact:</strong> ${contact}`;
+              card.insertBefore(contactElem, markButton);
             }
           });
         }
