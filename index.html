@@ -113,7 +113,7 @@
           markButton.disabled = true;
         } else {
           markButton.addEventListener('click', async () => {
-            const contact = prompt("Enter your contact information so people can reach you:");
+            const contact = prompt("Enter a link so people can reach their pet:");
             if (contact) {
               await db.ref('pets/' + id).update({ type: 'found', contact });
               markButton.disabled = true;
