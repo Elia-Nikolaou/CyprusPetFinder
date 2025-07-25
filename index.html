@@ -36,8 +36,11 @@
       <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
     </form>
 
-    <h2 class="text-2xl font-semibold mb-2">🐾 Reported Pets</h2>
-    <div id="petsList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+    <h2 class="text-2xl font-semibold mb-2">🐾 Missing Pets</h2>
+    <div id="missingPets" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"></div>
+
+    <h2 class="text-2xl font-semibold mb-2">✅ Found Pets</h2>
+    <div id="foundPets" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
   </div>
 
   <script>
@@ -57,7 +60,8 @@
     const storage = firebase.storage();
 
     const petForm = document.getElementById('petForm');
-    const petsList = document.getElementById('petsList');
+    const missingPets = document.getElementById('missingPets');
+    const foundPets = document.getElementById('foundPets');
 
     petForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -77,23 +81,13 @@
     });
 
     db.ref('pets').on('value', (snapshot) => {
-      petsList.innerHTML = '';
+      missingPets.innerHTML = '';
+      foundPets.innerHTML = '';
       const pets = snapshot.val();
       for (const id in pets) {
         const pet = pets[id];
         const isFound = pet.type.toLowerCase() === 'found';
-        const isMissingDesc = !pet.description || pet.description.trim() === '';
-
         const typeLabel = isFound ? '<span class="text-green-600 font-bold">Found</span>' : '<span class="text-red-600 font-bold">Missing</span>';
-
-        const buttonClass = isFound
-          ? 'bg-green-500 cursor-default'
-          : isMissingDesc
-          ? 'bg-gray-400 cursor-not-allowed'
-          : 'bg-yellow-500 hover:bg-yellow-600';
-
-        const buttonLabel = isFound ? '✅ Already Found' : 'Mark as Found ✅';
-
         const contactInfo = pet.contact ? `<p><strong>Contact:</strong> ${pet.contact}</p>` : '';
 
         const card = document.createElement('div');
@@ -104,28 +98,12 @@
           <p><strong>Description:</strong> ${pet.description}</p>
           <p><strong>Location:</strong> ${pet.location}</p>
           ${contactInfo}
-          <button class="mt-2 text-white px-3 py-1 rounded mark-found ${buttonClass}" data-id="${id}">${buttonLabel}</button>
         `;
-        petsList.appendChild(card);
 
-        const markButton = card.querySelector('.mark-found');
-        if (isFound || isMissingDesc) {
-          markButton.disabled = true;
+        if (isFound) {
+          foundPets.appendChild(card);
         } else {
-          markButton.addEventListener('click', async () => {
-            const contact = prompt("Enter a link so people can reach their pet:");
-            if (contact) {
-              await db.ref('pets/' + id).update({ type: 'found', contact });
-              markButton.disabled = true;
-              markButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-              markButton.classList.add('bg-green-500', 'cursor-default');
-              markButton.innerText = '✅ Already Found';
-              card.querySelector('p').innerHTML = '<span class="text-green-600 font-bold">Found</span>';
-              const contactElem = document.createElement('p');
-              contactElem.innerHTML = `<strong>Contact:</strong> ${contact}`;
-              card.insertBefore(contactElem, markButton);
-            }
-          });
+          missingPets.appendChild(card);
         }
       }
     });
