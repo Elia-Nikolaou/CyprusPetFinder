@@ -1,37 +1,78 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type PetReport, type InsertPetReport, type Stats } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
+// Storage interface for pet reports
+// Since we're using Firebase directly from the frontend,
+// this is mainly for future extensibility
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Pet report methods
+  getPetReport(id: string): Promise<PetReport | undefined>;
+  getAllPetReports(): Promise<PetReport[]>;
+  createPetReport(report: InsertPetReport): Promise<PetReport>;
+  updatePetReport(id: string, updates: Partial<PetReport>): Promise<PetReport | undefined>;
+  deletePetReport(id: string): Promise<boolean>;
+  
+  // Statistics
+  getStats(): Promise<Stats>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private petReports: Map<string, PetReport>;
 
   constructor() {
-    this.users = new Map();
+    this.petReports = new Map();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getPetReport(id: string): Promise<PetReport | undefined> {
+    return this.petReports.get(id);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async getAllPetReports(): Promise<PetReport[]> {
+    return Array.from(this.petReports.values());
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createPetReport(insertReport: InsertPetReport): Promise<PetReport> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const now = new Date().toISOString();
+    const report: PetReport = { 
+      ...insertReport, 
+      id,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.petReports.set(id, report);
+    return report;
+  }
+
+  async updatePetReport(id: string, updates: Partial<PetReport>): Promise<PetReport | undefined> {
+    const report = this.petReports.get(id);
+    if (!report) return undefined;
+    
+    const updatedReport = { 
+      ...report, 
+      ...updates, 
+      updatedAt: new Date().toISOString() 
+    };
+    this.petReports.set(id, updatedReport);
+    return updatedReport;
+  }
+
+  async deletePetReport(id: string): Promise<boolean> {
+    return this.petReports.delete(id);
+  }
+
+  async getStats(): Promise<Stats> {
+    const reports = await this.getAllPetReports();
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    return {
+      missing: reports.filter(r => r.reportType === 'missing' && r.status === 'active').length,
+      found: reports.filter(r => r.reportType === 'found' && r.status === 'active').length,
+      recent: reports.filter(r => new Date(r.createdAt) >= twentyFourHoursAgo).length,
+      reunited: reports.filter(r => r.status === 'reunited').length,
+    };
   }
 }
 

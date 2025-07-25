@@ -152,18 +152,7 @@ export default function Home() {
                 </a>
                 {" "}- 24/7 vet team available
               </p>
-              <p className="text-gray-700">
-                <strong>Cyprus Pride House:</strong>{" "}
-                <a 
-                  href="https://cypruspridehouse.org" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline inline-flex items-center"
-                >
-                  cypruspridehouse.org <ExternalLink className="h-3 w-3 ml-1" />
-                </a>
-                {" "}- Troodos Mountain rescue
-              </p>
+
               <p className="text-gray-700">
                 <strong>Animal Welfare Commissioner:</strong> Send photos of injured animals for social media awareness
               </p>

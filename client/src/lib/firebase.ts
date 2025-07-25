@@ -4,15 +4,29 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { PetReport, InsertPetReport, Stats } from '@shared/schema';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY || "demo-key",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || process.env.FIREBASE_AUTH_DOMAIN || "cyprus-pet-rescue.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "cyprus-pet-rescue",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || process.env.FIREBASE_STORAGE_BUCKET || "cyprus-pet-rescue.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || process.env.FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || process.env.FIREBASE_APP_ID || "1:123456789:web:abcdefghijk"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBv15j9DyPJW1dEuW0BCHOSucRqqQ988i0",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "cypruspetsfinder.firebaseapp.com",
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || "https://cypruspetsfinder-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "cypruspetsfinder",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "cypruspetsfinder.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "758035903846",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:758035903846:web:50fbc079fe8ca10ad1c4a7",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-4LWWD4W3F1"
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase app (check if already initialized to avoid duplicate app error)
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+} catch (error: any) {
+  if (error.code === 'app/duplicate-app') {
+    // App already initialized, get the existing instance
+    app = initializeApp(firebaseConfig, 'secondary');
+  } else {
+    throw error;
+  }
+}
+
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
@@ -110,17 +124,17 @@ export const searchPetReports = async (
     );
   }
   
-  if (filters.petType) {
+  if (filters.petType && filters.petType !== 'all') {
     reports = reports.filter(report => report.petType === filters.petType);
   }
   
-  if (filters.location) {
+  if (filters.location && filters.location !== 'all') {
     reports = reports.filter(report => 
       report.location.toLowerCase().includes(filters.location!.toLowerCase())
     );
   }
   
-  if (filters.dateRange) {
+  if (filters.dateRange && filters.dateRange !== 'all') {
     const now = new Date();
     let cutoffDate: Date;
     

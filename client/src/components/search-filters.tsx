@@ -56,7 +56,7 @@ export default function SearchFilters({
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="dog">Dogs</SelectItem>
               <SelectItem value="cat">Cats</SelectItem>
               <SelectItem value="bird">Birds</SelectItem>
@@ -73,7 +73,7 @@ export default function SearchFilters({
               <SelectValue placeholder="All Locations" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Locations</SelectItem>
+              <SelectItem value="all">All Locations</SelectItem>
               <SelectItem value="limassol">Limassol</SelectItem>
               <SelectItem value="paphos">Paphos</SelectItem>
               <SelectItem value="troodos">Troodos Mountains</SelectItem>
@@ -91,7 +91,7 @@ export default function SearchFilters({
               <SelectValue placeholder="All Dates" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Dates</SelectItem>
+              <SelectItem value="all">All Dates</SelectItem>
               <SelectItem value="today">Today</SelectItem>
               <SelectItem value="week">This Week</SelectItem>
               <SelectItem value="month">This Month</SelectItem>
